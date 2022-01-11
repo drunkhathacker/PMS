@@ -6,6 +6,7 @@ import random
 import string
 import sqlite3 as sl
 import pwnedpasswords
+from admin_functions import *
 
 con = sl.connect('my-test.db')
 c = con.cursor()
@@ -56,10 +57,17 @@ def login():
 #Generate Password
 
 def generate():
-    len = int(input('Enter the length of the password'))
-    print(len)  # Test
-    characters = string.ascii_letters + string.digits + string.punctuation
-    pwd = ''.join(random.choice(characters) for i in range(len))
+    upper = ''
+    special = ''
+    numb = ''
+    for i in range(min_upper):
+        upper = upper + string.ascii_uppercase
+    for i in range(min_special):
+        special = special + string.punctuation
+    for i in range(min_number):
+        numb = numb + string.digits
+    characters = upper+special+numb+string.ascii_lowercase
+    pwd = ''.join(random.choice(characters) for i in range(min_length))
     print(pwd)
     ans = input("Do you want to store this password to the database?; yes or no")
     ans = ans.lower()
@@ -88,15 +96,7 @@ def pwnd(pd):
         print("Safe")
 
 
-def batch():
-    num = int(input("Enter the length of the passwords:"))
-    times = int(input("How many passwords"))
-    f = open("SavedPasswords.txt", "a")
-    for x in range(times):
-        chars = string.ascii_letters + string.digits + string.punctuation
-        pewed = ''.join(random.choice(chars) for i in range(num))
-        f.write("{0}\n".format(pewed))
-    f.close()
+
 
 
 def selfcheck():
