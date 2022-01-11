@@ -5,7 +5,7 @@ import pwnedpasswords
 
 con = sl.connect('my-test.db')
 c = con.cursor()
-c.execute("CREATE TABLE IF NOT EXISTS PASS (Website TEXT,Password TEXT )")
+c.execute("CREATE TABLE IF NOT EXISTS USER (Website TEXT,Password TEXT )")
 
 
 def generate():
@@ -56,8 +56,7 @@ def selfcheck():
     selb = input("Enter the password you want to check for leakage")
     pwnd(selb)
 
-
-# generate()
-# showall()
-# batch()
-selfcheck()
+#generate()
+#showall()
+#batch()
+#selfcheck()
