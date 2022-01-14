@@ -1,16 +1,18 @@
 # Password Management System
 # Start of the Program
 
+from Functions import login, pwnd
+
 print("Enter your choice")
-print("1. Create user")
-c = int(input("2.Login"))
+print("1. Login")
+c = int(input("Manually check a password for leakage"))
 
 while True:
     try:
         if c == 1:
-            print("Create")
+            login()
         if c == 2:
-            print("Login")
+            pwnd()
         break
 
     except ValueError:

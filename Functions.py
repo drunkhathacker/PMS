@@ -14,45 +14,11 @@ c.execute("CREATE TABLE IF NOT EXISTS USER (Website TEXT,Password TEXT )")
 
 
 # Create a user
-def create():
-    userdata = dict()
-    if os.path.exists('userinfo.pickle'):
-        userdata = pickle.load(open('userinfo.pickle', 'rb'))
-    username = input('Enter username:')
-    pwd = getpass.getpass("Enter password:")
-    pwd2 = getpass.getpass("Enter password again:")
-    if pwd != pwd2:
-        print("Passwords do not match")
-        exit(0)
-    h = hashlib.md5()
-    h.update(pwd.encode('utf-8'))
-    pwd = h.hexdigest()
-    if username not in userdata:
-        userdata[username] = pwd
-    with open('userinfo.pickle', 'wb') as handle:
-        pickle.dump(userdata, handle)
-    con = sl.connect('my-test.db')
-    c = con.cursor()
-    query = 'CREATE TABLE IF NOT EXISTS {} (Website TEXT,Password TEXT )'.format(username)
-    c.execute(query)
+
 
 
 # Login the user
 
-def login():
-    userdata = pickle.load(open('userinfo.pickle', 'rb'))
-    username = input("Enter username:")
-    pwd = getpass.getpass("Enter password:")
-    h = hashlib.md5()
-    h.update(pwd.encode('utf-8'))
-    pwd = h.hexdigest()
-    if username in userdata:
-        if userdata[username] == pwd:
-            print("Success.")
-        else:
-            print("Incorrect password.")
-    else:
-        print("User not found.")
 
 #Generate Password
 
@@ -95,12 +61,27 @@ def pwnd(pd):
     else:
         print("Safe")
 
-
-
-
-
 def selfcheck():
     selb = input("Enter the password you want to check for leakage")
     pwnd(selb)
 
-create()
+def login():
+    username = input("Enter your username:")
+    pwd = getpass.getpass("Enter password")
+    h = hashlib.md5()
+    h.update(pwd.encode('utf-8'))
+    pwd = h.hexdigest()
+    con = sl.connect('my-test.db')
+    c = con.cursor()
+    query = "SELECT Role FROM MASTERED where Username='" + username + "' AND Password ='" + pwd + "'"
+    c.execute(query)
+    result = c.fetchall()
+    # if result == 1:
+    #     normal()
+    # if result == 2:
+    #     admin()
+    for x in result:
+        print(x)
+
+
+

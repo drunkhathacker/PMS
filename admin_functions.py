@@ -1,11 +1,20 @@
 # Logged in as admin
 import string
 import random
+import getpass
+import sqlite3 as sl
 
 global min_length
 global min_number
 global min_upper
 global min_special
+import hashlib
+
+
+con = sl.connect('my-test.db')
+c = con.cursor()
+c.execute("CREATE TABLE IF NOT EXISTS MASTERED (Username TEXT,Password TEXT, Role INTEGER )")
+
 
 
 def set_policy():
@@ -33,4 +42,27 @@ def batch():
         f.write("{0}\n".format(bpsswd))
     f.close()
 
-# def view_all():
+#Create a user. Only admin can create a new user
+
+def create():
+    userdata = dict()
+    username = input("Enter username")
+    if username in userdata:                 # Not Working, Use try except later
+        print("User already Exists")
+    pwd = getpass.getpass("Enter password:")
+    pwd2 = getpass.getpass("Enter password again:")
+    if pwd != pwd2:
+        print("Passwords do not match")
+        exit(0)
+    h = hashlib.md5()
+    h.update(pwd.encode('utf-8'))
+    pwd = h.hexdigest()
+    role = input("Set role code")
+    ls = [pwd, role]
+    userdata[username] = ls
+    print(userdata)
+    con = sl.connect('my-test.db')
+    c = con.cursor()
+    c.execute("INSERT INTO MASTERED (Username,Password,Role)VALUES (?,?,?)", (username, pwd, role))
+    c.execute("CREATE TABLE IF NOT EXISTS {}(Username TEXT,Password TEXT)").__format__(username)
+    con.commit()
