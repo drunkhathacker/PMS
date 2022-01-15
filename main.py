@@ -1,7 +1,7 @@
 # Password Management System
 # Start of the Program
 
-from Functions import login, pwnd
+from Functions import *
 
 print("Enter your choice")
 print("1. Login")

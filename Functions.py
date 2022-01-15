@@ -7,7 +7,8 @@ import random
 import string
 import sqlite3 as sl
 import pwnedpasswords
-from admin_functions import set_policy
+from admin_functions import set_policy, batch, create
+
 
 con = sl.connect('my-test.db')
 c = con.cursor()
@@ -23,7 +24,7 @@ c.execute("CREATE TABLE IF NOT EXISTS USER (Website TEXT,Password TEXT )")
 
 #Generate Password
 
-def generate():
+def generate(name):
     upper = ''
     special = ''
     numb = ''
@@ -44,8 +45,8 @@ def generate():
     pwnd(pwd)
 
 
-def db(s, p):
-    c.execute("INSERT INTO PASS (Website,Password)VALUES (?,?)", (s, p))
+def db(s, p, usname):
+    c.execute("INSERT INTO " +usname+" (Website,Password)VALUES (?,?)", (s, p))
     con.commit()
 
 
@@ -78,11 +79,38 @@ def login():
     c.execute(query)
     result = c.fetchall()
     # if result == 1:
-    #     normal()
+    #     normal(usernmae)
     # if result == 2:
     #     admin()
     for x in result:
         print(x)
 
-generate()
+
+def normal(uname):
+    con = sl.connect("my-test.db")
+    c=con.cursor()
+    query = "SELECT * FROM" + uname
+    c.execute(query)
+    result = c.fetchall()
+    for x in result:
+        print(x)
+
+def admin(usrname):
+    print("********Logged in as admin********")
+    print(" You have the following options:")
+    print("1. Change password policy")
+    print("2. Create batch passwords")
+    print("3. Create a user account")
+    print("4. Delete a user account")
+    i = input("Enter your choice")
+    if i == 1:
+        set_policy()
+    elif i == 2:
+        batch()
+    elif i == 3:
+        create()
+    # elif i == 4:
+    #     delete()
+
+
 
