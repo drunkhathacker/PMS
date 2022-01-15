@@ -1,12 +1,13 @@
 import getpass
 import hashlib
+import unittest
 import os
 import pickle
 import random
 import string
 import sqlite3 as sl
 import pwnedpasswords
-from admin_functions import *
+from admin_functions import set_policy
 
 con = sl.connect('my-test.db')
 c = con.cursor()
@@ -30,7 +31,7 @@ def generate():
         upper = upper + string.ascii_uppercase
     for i in range(min_special):
         special = special + string.punctuation
-    for i in range(min_number):
+    for i in range(min_number+1):
         numb = numb + string.digits
     characters = upper+special+numb+string.ascii_lowercase
     pwd = ''.join(random.choice(characters) for i in range(min_length))
@@ -83,5 +84,5 @@ def login():
     for x in result:
         print(x)
 
-
+generate()
 

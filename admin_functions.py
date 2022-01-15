@@ -10,7 +10,6 @@ global min_upper
 global min_special
 import hashlib
 
-
 con = sl.connect('my-test.db')
 c = con.cursor()
 c.execute("CREATE TABLE IF NOT EXISTS MASTERED (Username TEXT,Password TEXT, Role INTEGER )")
@@ -18,10 +17,10 @@ c.execute("CREATE TABLE IF NOT EXISTS MASTERED (Username TEXT,Password TEXT, Rol
 
 
 def set_policy():
-    min_length = input("Enter minimum length of the password")
-    min_number = input("Enter minimum numerical characters in the password")
-    min_upper = input("Enter minimum uppercase characters  in the password")
-    min_special = input("Enter minimum number of special characters in the password")
+    global min_length = input("Enter minimum length of the password")
+    global min_number = input("Enter minimum numerical characters in the password")
+    global min_upper = input("Enter minimum uppercase characters  in the password")
+    global min_special =  input("Enter minimum number of special characters in the password")
 
 
 def batch():
@@ -42,12 +41,13 @@ def batch():
         f.write("{0}\n".format(bpsswd))
     f.close()
 
-#Create a user. Only admin can create a new user
+
+# Create a user. Only admin can create a new user
 
 def create():
     userdata = dict()
     username = input("Enter username")
-    if username in userdata:                 # Not Working, Use try except later
+    if username in userdata:  # Not Working, Use try except later
         print("User already Exists")
     pwd = getpass.getpass("Enter password:")
     pwd2 = getpass.getpass("Enter password again:")

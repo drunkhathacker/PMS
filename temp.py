@@ -50,17 +50,21 @@ def login():
     c.execute(query)
     result = c.fetchall()
     # if result == 1:
-    #     normal()
+    #     normal(Username)
     # if result == 2:
     #     admin()
     for x in result:
         print(x)
 
-def normal():
-    print("Logged in as a normal user \n")
-    print("You have the following options: \n")
-    print("1. Create a new password")
-    print("2. Show existing passwords")
+# def normal():
+#     print("Logged in as a normal user \n")
+#     print("You have the following options: \n")
+#     print("1. Create a new password")
+#     c= input("2. Show existing passwords")
+#     if c==1:
+#         generate()
+#     if c==2:
+
 
 #create()
 show()
