@@ -1,60 +1,54 @@
 import getpass
 import hashlib
+import secrets
 import unittest
-import os
-import pickle
-import random
 import string
 import sqlite3 as sl
 import pwnedpasswords
-from admin_functions import set_policy, batch, create
+from admin_functions import *
+import config
+from cryptography.fernet import Fernet
+import string_utils
 
-
-con = sl.connect('my-test.db')
-c = con.cursor()
-c.execute("CREATE TABLE IF NOT EXISTS USER (Website TEXT,Password TEXT )")
-
-
-# Create a user
-
-
-
-# Login the user
 
 
 #Generate Password
 
 def generate(name):
-    upper = ''
-    special = ''
-    numb = ''
-    for i in range(min_upper):
-        upper = upper + string.ascii_uppercase
-    for i in range(min_special):
-        special = special + string.punctuation
-    for i in range(min_number+1):
-        numb = numb + string.digits
-    characters = upper+special+numb+string.ascii_lowercase
-    pwd = ''.join(random.choice(characters) for i in range(min_length))
-    print(pwd)
-    ans = input("Do you want to store this password to the database?; yes or no")
+    print("*******Generating new password*******")
+    global key
+    upper = string.ascii_uppercase
+    special = string.punctuation
+    numb = string.digits
+    lower= string.ascii_lowercase
+    pword = ''
+    for i in range(config.min_upper):
+        n = secrets.randbelow(26)
+        pword = pword + upper[n]
+    for i in range(config.min_special):
+        n = secrets.randbelow(10)
+        pword = pword + special[n]
+    for i in range(config.min_number):
+        n = secrets.randbelow(10)
+        pword = pword + numb[n]
+    for i in range(config.min_lower):
+        n = secrets.randbelow(26)
+        pword = pword + lower[n]
+    pword = string_utils.shuffle(pword)
+    print(pword)
+    ans = input("Do you want to store this password to the database?; y or n?")
     ans = ans.lower()
-    if ans == 'yes':
+    if ans == 'y':
+        key = Fernet.generate_key()
         site = input("Enter the name of the website")
-        db(site, pwd)
-    pwnd(pwd)
+        pwd = encrypt_password(pword)
+        db(name,site, pword,key)
 
 
-def db(s, p, usname):
-    c.execute("INSERT INTO " +usname+" (Website,Password)VALUES (?,?)", (s, p))
+def db(usname,s, p, k):
+    c.execute("INSERT INTO " + usname +" (Website,Password, Key)VALUES (?,?,?) ", (s, p,k))
     con.commit()
 
-
-def showall():
-    c.execute("SELECT * FROM PASS")
-    result = c.fetchall()
-    for x in result:
-        print(x)
 
 
 def pwnd(pd):
@@ -63,9 +57,11 @@ def pwnd(pd):
     else:
         print("Safe")
 
+
 def selfcheck():
     selb = input("Enter the password you want to check for leakage")
     pwnd(selb)
+
 
 def login():
     username = input("Enter your username:")
@@ -73,44 +69,84 @@ def login():
     h = hashlib.md5()
     h.update(pwd.encode('utf-8'))
     pwd = h.hexdigest()
-    con = sl.connect('my-test.db')
+    con = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
     c = con.cursor()
-    query = "SELECT Role FROM MASTERED where Username='" + username + "' AND Password ='" + pwd + "'"
+    query ="SELECT ROLE FROM MASTERED WHERE Username='" + username + "'AND Password ='" + pwd +"'"
     c.execute(query)
-    result = c.fetchall()
-    # if result == 1:
-    #     normal(usernmae)
-    # if result == 2:
-    #     admin()
+    result = c.fetchone()
+    new = result[0]
+    if new == 2:
+        normal(username)
+    if new == 1:
+        admin()
     for x in result:
         print(x)
 
 
 def normal(uname):
-    con = sl.connect("my-test.db")
-    c=con.cursor()
-    query = "SELECT * FROM" + uname
-    c.execute(query)
-    result = c.fetchall()
-    for x in result:
-        print(x)
+    print("*******Logged in as User")
+    print("Updated Version")
+    print(" You have the following options:")
+    print("1. View your passwords")
+    print("2. Create your passwords")
+    print("3. To exit")
+    print("Updated Version")
+    choice = int(input("Enter your choice"))
+    print(choice)
+    print(type(choice))
+    if choice == 1:
+        conx = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
+        cx = conx.cursor()
+        query = "SELECT * FROM " + uname
+        cx.execute(query)
+        result = cx.fetchall()
+        for x in result:
+            print(x)
+    elif choice == 2:
+        generate(uname)
+    elif choice == 3:
+        exit()
 
-def admin(usrname):
+
+
+def admin():
     print("********Logged in as admin********")
     print(" You have the following options:")
     print("1. Change password policy")
     print("2. Create batch passwords")
     print("3. Create a user account")
     print("4. Delete a user account")
-    i = input("Enter your choice")
+    i = int(input("Enter your choice"))
     if i == 1:
         set_policy()
     elif i == 2:
         batch()
     elif i == 3:
         create()
-    # elif i == 4:
-    #     delete()
+    elif i == 4:
+        deli()
 
+
+
+# Function to encrypt Password
+def encrypt_password(password):
+    password = password.encode()
+    cipher_suite = Fernet(key)
+    cipher_text = cipher_suite.encrypt(password)
+    return cipher_text
+
+# Function to decrypt password
+def decrypt_password(cipher_text, key):
+    cipher_suite = Fernet(key)
+    unciphered_text = (cipher_suite.decrypt(cipher_text))
+    return unciphered_text
+
+def view_mastered():
+    con = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
+    c = con.cursor()
+    query = "SELECT * FROM MASTERED"
+    c.execute(query)
+    tp = c.fetchall()
+    print(tp)
 
 

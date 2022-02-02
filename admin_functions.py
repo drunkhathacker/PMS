@@ -1,44 +1,52 @@
 # Logged in as admin
 import string
-import random
+import secrets
 import getpass
 import sqlite3 as sl
-
-global min_length
-global min_number
-global min_upper
-global min_special
+import config
 import hashlib
+import string_utils
 
-con = sl.connect('my-test.db')
+con = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
 c = con.cursor()
 c.execute("CREATE TABLE IF NOT EXISTS MASTERED (Username TEXT,Password TEXT, Role INTEGER )")
 
 
-
 def set_policy():
-    global min_length = input("Enter minimum length of the password")
-    global min_number = input("Enter minimum numerical characters in the password")
-    global min_upper = input("Enter minimum uppercase characters  in the password")
-    global min_special =  input("Enter minimum number of special characters in the password")
+
+    config.min_length = int(input("Enter minimum length of the password"))
+    config.min_number = int(input("Enter minimum numerical characters in the password"))
+    config.min_upper = int(input("Enter minimum uppercase characters  in the password"))
+    config.min_special = int(input("Enter minimum number of special characters in the password"))
+    config.min_lower = int(input("Enter minimum number of lowercase characters in the password"))
+
 
 
 def batch():
     times = int(input("How many passwords"))
     f = open("SavedPasswords.txt", "a")
     for x in range(times):
-        upper = ''
-        special = ''
-        numb = ''
-        for i in range(min_upper):
-            upper = upper + string.ascii_uppercase
-        for i in range(min_special):
-            special = special + string.punctuation
-        for i in range(min_number):
-            numb = numb + string.digits
-        characters = upper + special + numb + string.ascii_lowercase
-        bpsswd = ''.join(random.choice(characters) for i in range(min_length))
-        f.write("{0}\n".format(bpsswd))
+        print("*******Generating new password*******")
+        global key
+        upper = string.ascii_uppercase
+        special = string.punctuation
+        numb = string.digits
+        lower = string.ascii_lowercase
+        pword = ''
+        for i in range(config.min_upper):
+            n = secrets.randbelow(26)
+            pword = pword + upper[n]
+        for i in range(config.min_special):
+            n = secrets.randbelow(10)
+            pword = pword + special[n]
+        for i in range(config.min_number):
+            n = secrets.randbelow(10)
+            pword = pword + numb[n]
+        for i in range(config.min_lower):
+            n = secrets.randbelow(26)
+            pword = pword + lower[n]
+        pworddd = string_utils.shuffle(pword)
+        f.write("{0}\n".format(pworddd))
     f.close()
 
 
@@ -47,7 +55,11 @@ def batch():
 def create():
     userdata = dict()
     username = input("Enter username")
-    if username in userdata:  # Not Working, Use try except later
+    con = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
+    c = con.cursor()
+    c.execute(("SELECT * FROM MASTERED"))
+    R=c.fetchall()
+    if username in R:
         print("User already Exists")
     pwd = getpass.getpass("Enter password:")
     pwd2 = getpass.getpass("Enter password again:")
@@ -61,8 +73,27 @@ def create():
     ls = [pwd, role]
     userdata[username] = ls
     print(userdata)
-    con = sl.connect('my-test.db')
+    con = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
     c = con.cursor()
     c.execute("INSERT INTO MASTERED (Username,Password,Role)VALUES (?,?,?)", (username, pwd, role))
-    c.execute("CREATE TABLE IF NOT EXISTS {}(Username TEXT,Password TEXT)").__format__(username)
+    c.execute("CREATE TABLE [%s](Website,Password,key)"%username)
     con.commit()
+
+def deli():
+    con = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
+    c = con.cursor()
+    c.execute("SELECT USERNAME FROM MASTERED")
+    tresult = c.fetchall()
+    for x in tresult:
+        print(x)
+    usrrr = input("Select the user you want to delete")
+    c.execute("DROP TABLE "+usrrr)
+
+def view_tables():
+    con = sl.connect('/Users/sandhu/PycharmProjects/PasswordManagementSystem/my-test.db')
+    c = con.cursor()
+    c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    print(c.fetchall())
+
+
+
