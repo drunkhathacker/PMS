@@ -38,7 +38,6 @@ def generate():
 
 class Test_length(unittest.TestCase):
     def setUp(self):
-        print("Sanjkdsnkjsdcnja")
         self.length = 8
 
     def test_length(self):
